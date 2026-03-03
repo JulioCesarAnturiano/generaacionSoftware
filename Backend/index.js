@@ -10,9 +10,24 @@ conectarDB();
 
 const app = express();
 
-// Middlewares
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+  "http://127.0.0.1:5173",
+  "https://generaacion-software.vercel.app"
+];
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://127.0.0.1:5173'],
+  origin: function (origin, callback) {
+    // Permite requests sin origin (Postman, curl)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+
+    return callback(new Error("CORS: Origen no permitido: " + origin));
+  },
   credentials: true
 }));
 app.use(express.json());
