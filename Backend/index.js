@@ -34,9 +34,7 @@ app.use(
     credentials: true,
   })
 );
-
-app.options("*", cors());
-
+app.options(/.*/, cors());
 // Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
