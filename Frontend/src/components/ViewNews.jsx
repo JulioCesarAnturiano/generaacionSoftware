@@ -8,6 +8,7 @@ const ViewNews = ({ refreshTrigger }) => {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedNewsId, setSelectedNewsId] = useState(null);
 
   useEffect(() => {
     fetchNews();
@@ -77,66 +78,81 @@ const ViewNews = ({ refreshTrigger }) => {
             <p className="newspaper-date">{formatDate(new Date())}</p>
           </div>
 
-          {/* Noticia Principal (Featured) */}
-          {news[0] && (
-            <div className="featured-article">
-              <div className="featured-image-container">
-                {news[0].files && news[0].files.some(f => isImageFile(f.filename)) ? (
-                  <img
-                    src={getImageUrl(news[0].files.find(f => isImageFile(f.filename)).filename)}
-                    alt={news[0].title}
-                    className="featured-image"
-                  />
-                ) : (
-                  <div className="no-image">📰 Sin imagen</div>
-                )}
-              </div>
-
-              <div className="featured-content">
-                <h2>{news[0].title}</h2>
-                <p className="featured-date">
-                  {formatDate(news[0].createdAt)}
-                </p>
-                <p className="featured-description">
-                  {news[0].description}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Grid de otras noticias */}
-          {news.length > 1 && (
-            <div className="news-grid-newspaper">
-              <h3 className="grid-title">MÁS NOTICIAS</h3>
-              <div className="articles-grid">
-                {news.slice(1).map((item) => (
-                  <div key={item._id} className="news-article">
-                    {/* Imagen de la noticia */}
-                    <div className="article-image-container">
-                      {item.files && item.files.some(f => isImageFile(f.filename)) ? (
-                        <img
-                          src={getImageUrl(item.files.find(f => isImageFile(f.filename)).filename)}
-                          alt={item.title}
-                          className="article-image"
-                        />
-                      ) : (
-                        <div className="no-image-small">📰</div>
-                      )}
-                    </div>
-
-                    <div className="article-content">
-                      <h3>{item.title}</h3>
-                      <p className="article-date">{formatDate(item.createdAt)}</p>
-                      <p className="article-description">
-                        {item.description.substring(0, 120)}...
-                      </p>
-                    </div>
+          {/* Grid de todas las noticias */}
+          <div className="news-grid-newspaper">
+            <div className="articles-grid">
+              {news.map((item) => (
+                <div key={item._id} className="news-article" onClick={() => setSelectedNewsId(item._id)}>
+                  {/* Imagen de la noticia */}
+                  <div className="article-image-container">
+                    {item.files && item.files.some(f => isImageFile(f.filename)) ? (
+                      <img
+                        src={getImageUrl(item.files.find(f => isImageFile(f.filename)).filename)}
+                        alt={item.title}
+                        className="article-image"
+                      />
+                    ) : (
+                      <div className="no-image-small">📰</div>
+                    )}
                   </div>
-                ))}
-              </div>
+
+                  <div className="article-content">
+                    <h3>{item.title}</h3>
+                    <p className="article-date">{formatDate(item.createdAt)}</p>
+                    <p className="article-description">
+                      {item.description.substring(0, 120)}...
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
+          </div>
         </>
+      )}
+
+      {/* Modal para vista completa */}
+      {selectedNewsId && (
+        <div className="modal-overlay" onClick={() => setSelectedNewsId(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setSelectedNewsId(null)}>✕</button>
+            {news
+              .filter((item) => item._id === selectedNewsId)
+              .map((item) => (
+                <div key={item._id} className="full-article">
+                  {item.files && item.files.some(f => isImageFile(f.filename)) && (
+                    <div className="full-article-image">
+                      <img
+                        src={getImageUrl(item.files.find(f => isImageFile(f.filename)).filename)}
+                        alt={item.title}
+                      />
+                    </div>
+                  )}
+                  <h2>{item.title}</h2>
+                  <p className="full-article-date">{formatDate(item.createdAt)}</p>
+                  <p className="full-article-description">{item.description}</p>
+
+                  {item.files && item.files.length > 0 && (
+                    <div className="full-article-attachments">
+                      <h4>Archivos adjuntos:</h4>
+                      <div className="attachments-list">
+                        {item.files.map((file, idx) => (
+                          <a
+                            key={idx}
+                            href={`${API_URL}/uploads/${file.filename}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="attachment-link"
+                          >
+                            📎 {file.originalname}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+          </div>
+        </div>
       )}
     </div>
   );
