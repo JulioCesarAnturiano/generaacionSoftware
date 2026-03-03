@@ -43,13 +43,7 @@ const CreateNews = ({ onNewsCreated }) => {
     }
 
     if (formData.files.length === 0) {
-      setError('Debe seleccionar al menos una imagen');
-      return;
-    }
-
-    const hasImage = formData.files.some(f => f.type.startsWith('image/'));
-    if (!hasImage) {
-      setError('Debe seleccionar al menos una imagen');
+      setError('Debe seleccionar al menos un archivo (imagen o PDF)');
       return;
     }
 
