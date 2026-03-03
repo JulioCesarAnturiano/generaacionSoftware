@@ -1,5 +1,5 @@
 // Configuración de la API
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'https://generaacionsoftware.onrender.com';
 
 export default {
   API_URL,
